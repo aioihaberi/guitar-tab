@@ -255,7 +255,7 @@ button.play.on{background:#c0392b}
 <script>
 "use strict";
 /* ================= 基本定義 ================= */
-const APP_VERSION = 'v0.5（2026-11-04）';
+const APP_VERSION = 'v0.5.1（2026-11-06）';
 const TS = {
   '4/4': {tpb:48, beat:12, beats:4},
   '3/4': {tpb:36, beat:12, beats:3},
@@ -430,6 +430,39 @@ function evaluate(v, tun, R, req, bass, I){
     if (fingers > 4) return null;
     barre = {fret:minF, from:bs, to:be};
   }
+  // 指が交差する形を除く：同じフレットの2音のあいだの弦に、それより高いフレットの音がある形
+  // （例：3-1-0-0-3-1。1フレットの2本の指のあいだに3フレットの指が入り込む）
+  let cross = 0;
+  const own = fr.filter(i => !(barre && v[i] === barre.fret && i >= barre.from && i <= barre.to));
+  for (let a = 0; a < own.length; a++) for (let b = a + 1; b < own.length; b++) {
+    const sa = own[a], sb = own[b];
+    if (v[sa] !== v[sb]) continue;
+    for (const m of own) if (m > sa && m < sb && v[m] > v[sa]) cross = Math.max(cross, v[m] - v[sa]);
+  }
+  if (cross >= 2) return null;
+  // 指の並びの無理さ：人差し指から順に、フレットの低い音から指を置いたときの
+  //  ・同じフレットで、後の指が前の指より低音側の弦にある（指が交差する）
+  //  ・隣り合う指のフレットが違うのに、3本以上離れた弦にまたがる
+  // を数え、一番楽な指の割り当てで評価する
+  const perms = arr => arr.length <= 1 ? [arr] : arr.flatMap((x, i) => perms(arr.slice(0, i).concat(arr.slice(i + 1))).map(r => [x, ...r]));
+  let hand = Infinity;
+  for (const o of perms(own)) {
+    let ok = true, c = 0;
+    for (let k = 1; k < o.length; k++) {
+      const a = o[k-1], b = o[k];
+      if (v[b] < v[a]) { ok = false; break; }
+      if (v[b] === v[a]) { if (b < a) c += (a - b); }
+      else c += Math.max(0, Math.abs(b - a) - 2);
+    }
+    if (ok) hand = Math.min(hand, c);
+  }
+  if (!own.length) hand = 0;
+  if (hand >= 3) return null;
+  // セーハでないのに同じフレットに3本以上の指が、間をあけて並ぶ形は押さえにくい
+  let spread = 0;
+  const byF = {};
+  for (const i of own) (byF[v[i]] = byF[v[i]] || []).push(i);
+  for (const k in byF) { const g = byF[k].sort((a, b) => a - b); if (g.length >= 3) for (let j = 1; j < g.length; j++) spread += Math.max(0, g[j] - g[j-1] - 1); }
   const open = snd.filter(i => v[i] === 0).length;
   const spanF = fr.length ? maxF - minF : 0;
   let sc = spanF * 1.2
@@ -441,7 +474,10 @@ function evaluate(v, tun, R, req, bass, I){
          + above * 1.2
          + (snd.length < 4 ? 2.5 : 0)
          - snd.length * 0.5
-         - open * 0.1;
+         - open * 0.1
+         + (cross ? 3 : 0)
+         + hand * 1.2
+         + spread * 0.6;
   if (bass == null && lowPc !== pcOf(R)) sc += 3.2;
   if (!I.fifthReq && !pcs.has(pcOf(R + I.fifth))) sc += 0.5;
   return {frets: v, barre, score: sc, center: centerOf(v)};
