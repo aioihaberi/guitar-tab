@@ -2,7 +2,11 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#24262b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="タブ譜">
 <title>ギターコード＆タブ譜</title>
 <style>
 :root{
@@ -12,7 +16,7 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;height:100%}
-body{font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column}
+body{touch-action:manipulation;font-family:"Hiragino Sans","Yu Gothic UI","Meiryo",system-ui,sans-serif;background:var(--bg);color:var(--ink);display:flex;flex-direction:column}
 header.top{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--panel);color:var(--ptext);flex-wrap:wrap}
 header.top .title{font-size:16px;font-weight:600;padding:5px 8px;border-radius:6px;border:1px solid #555;background:#1b1c20;color:var(--ptext);min-width:200px}
 header.top label{font-size:13px;color:var(--pmuted);display:flex;align-items:center;gap:5px}
@@ -155,6 +159,8 @@ button.play.on{background:#c0392b}
 .techs button{padding:6px 0;font-size:12px}
 .techs button small{display:block;font-size:10px;color:var(--pmuted)}
 .techs button.on{background:var(--accent2);color:#fff}
+.fretpad{display:grid;grid-template-columns:repeat(9,1fr);gap:3px;margin-top:6px}
+.fretpad button{padding:7px 0;font-family:Arial,sans-serif}
 .msg{font-size:12px;color:#ffb393;min-height:16px;margin-top:6px}
 .durs{display:flex;flex-wrap:wrap;gap:4px}
 .durs button{padding:5px 8px;font-size:12.5px}
@@ -192,7 +198,10 @@ button.play.on{background:#c0392b}
   @page{size:A4 portrait;margin:12mm}
   html,body{height:auto;background:#fff}
   body{display:block}
-  header.top,#panel,#warn,#modal,.add-bar{display:none!important}
+  header.top,#panel,#warn,#modal,.add-bar,#mbar,#mtool,#mbottom,#mfloat,#handle{display:none!important}
+  body.m{height:auto;overflow:visible}
+  body.m main{display:block}
+  body.m #score{overflow:visible;display:block!important}
   main{display:block}
   #score{overflow:visible;padding:0}
   .sheet{box-shadow:none;max-width:none;padding:0;margin:0;border-radius:0}
@@ -203,19 +212,83 @@ button.play.on{background:#c0392b}
   .fn.sub.sel{fill:#8a8a90}
   .rest{fill:#1d1d1f!important}
 }
-@media (max-width:900px){
-  main{flex-direction:column}
-  #panel{display:none}
-  #score{padding:6px}
-  .sheet{padding:12px 8px}
-  header.top .edit{display:none}
-}
+/* ===== スマホ用レイアウト（body.m のとき） ===== */
+#dock{display:contents}
+#mbar,#handle,#mtool,#mbottom,#mfloat,.monly,#hdr .monly,.mclose{display:none}
+body.m .ptabs button{white-space:nowrap}
+body.m{height:100vh;height:100dvh;overflow:hidden}
+body.m .monly,body.m #hdr .monly{display:flex}
+body.m .pconly{display:none}
+body.m #hdr header.top label:has(input[type=checkbox]){justify-content:flex-start}
+.kb .wk{white-space:nowrap}
+body.m #mbar{display:flex;align-items:center;gap:6px;height:48px;padding:0 8px;background:var(--panel);color:var(--ptext);flex:none}
+#mbar #mtitle{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:15px}
+#mbar button{padding:8px 11px;font-size:16px}
+body.m #hdr{display:none}
+body.m.menu #hdr{display:block;position:fixed;top:48px;left:0;right:0;bottom:0;overflow:auto;z-index:30;background:var(--panel);padding-bottom:60px}
+body.m #hdr header.top{flex-direction:column;align-items:stretch;gap:10px;padding:12px 16px;border-bottom:1px solid #3a3d44}
+body.m #hdr header.top .sp{display:none}
+body.m #hdr header.top label,body.m #hdr .grp{justify-content:space-between;font-size:15px;flex-wrap:wrap}
+body.m #hdr .title{min-width:0;width:100%}
+body.m #hdr button{padding:10px 12px;font-size:15px}
+body.m .mclose{display:block;margin:12px 16px;width:calc(100% - 32px)}
+body.m input,body.m select,body.m textarea{font-size:16px!important}
+body.m main{flex:1;min-height:0;display:flex;flex-direction:column}
+body.m #score{flex:1;min-height:0;padding:6px;overflow:auto}
+body.m .sheet{padding:10px 6px 16px;border-radius:0}
+body.m .song-title{font-size:17px}
+body.m #dock{display:flex;flex-direction:column;flex:none;height:var(--sheetH,46vh);background:var(--panel);border-top:1px solid #000;min-height:0}
+body.m #panel{width:auto;flex:1;min-height:0;padding:8px 10px 28px}
+body.m #handle{display:block;height:20px;flex:none;touch-action:none;cursor:ns-resize;position:relative}
+body.m #handle::after{content:"";position:absolute;left:50%;top:7px;width:44px;height:5px;margin-left:-22px;border-radius:3px;background:#666}
+body.m #mtool{display:flex;gap:4px;padding:4px 8px 6px;flex:none;background:var(--panel);overflow-x:auto;align-items:center}
+#mtool button{padding:9px 10px;font-size:13.5px;flex:none}
+#mtool button.on{background:var(--accent2);color:#fff}
+#mtool .strl{font-size:12px;color:#9cc3ff;min-width:34px;text-align:center;flex:none}
+#mtool .vsep{width:1px;align-self:stretch;background:#444;flex:none;margin:0 2px}
+body.m #mfloat.on{display:block;position:fixed;left:8px;right:8px;bottom:var(--fbot,8px);z-index:25;background:#1f3550;color:#cfe2ff;border-radius:10px;padding:8px 10px;box-shadow:0 4px 16px rgba(0,0,0,.35);font-size:13px}
+#mfloat .row{margin-top:6px}
+#mfloat button{padding:8px 10px}
+body.m .selbar{display:none}
+body.m #panel button{padding:8px 10px}
+body.m .builder{display:block}
+body.m .col{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px;align-items:center}
+body.m .col .ch{width:100%;text-align:left;margin:0 0 2px}
+body.m .col button{display:inline-block;width:auto;min-width:42px;margin:0;padding:8px 6px!important}
+body.m .cand svg{max-width:150px}
+body.m .ptabs{position:sticky;top:-8px;z-index:3;background:var(--panel);padding-top:6px;margin-top:6px}
+body.m .ptabs button{font-size:12px;padding:8px 2px}
+body.m .ppv{background:#fff;border-radius:6px;margin:0 -4px 8px;padding:2px}
+body.m .fretpad{grid-template-columns:repeat(7,1fr)}
+/* 案B：画面切り替え（縦持ち） */
+body.m.lay-b:not(.land) #handle{display:none}
+body.m.lay-b:not(.land) .ptabs{display:none}
+body.m.lay-b:not(.land):not(.mv-panel) #dock{display:none}
+body.m.lay-b:not(.land).mv-panel #score{display:none}
+body.m.lay-b:not(.land).mv-panel #dock{flex:1;height:auto;border-top:none}
+body.m.lay-b:not(.land) #mbottom{display:block;flex:none;background:var(--panel);border-top:1px solid #000;padding-bottom:env(safe-area-inset-bottom)}
+#mnav{display:flex}
+#mnav button{flex:1;border-radius:0;padding:10px 2px;font-size:11.5px;background:var(--panel);color:var(--pmuted)}
+#mnav button.on{color:#fff;background:#3a3e45;font-weight:600}
+/* 横持ち：左右に分ける */
+body.m.land main{flex-direction:row}
+body.m.land #dock{height:auto;width:min(50vw,460px);border-top:none;border-left:1px solid #000}
+body.m.land #handle{display:none}
+body.m.land #mbottom{display:none}
 </style>
 </head>
 <body>
 <div id="warn" class="warn" hidden></div>
+<div id="mbar">
+  <button data-act="menu" title="メニュー">≡</button>
+  <span id="mtitle"></span>
+  <button data-act="undo" title="元に戻す">↶</button><button data-act="redo" title="やり直し">↷</button>
+  <button data-act="play" id="mplay" class="play">▶</button>
+</div>
+<div id="hdr">
 <header class="top">
   <input id="title" class="title" placeholder="曲名">
+  <button data-act="undo" class="pconly" title="元に戻す (Ctrl+Z)">↶</button><button data-act="redo" class="pconly" title="やり直し (Ctrl+Y)">↷</button>
   <button data-act="songs">曲一覧</button>
   <button data-act="new" class="edit">新規</button>
   <label class="edit">拍子
@@ -246,16 +319,28 @@ button.play.on{background:#c0392b}
   <button data-act="play" id="playBtn" class="play">▶ 再生</button>
   <button data-act="print" class="pri">PDF出力</button>
 </header>
+<header class="top sub">
+  <label>1行の小節数 <select id="bplSel"><option value="auto">自動</option><option value="1">1</option><option value="2">2</option><option value="4">4</option></select></label>
+  <label class="monly">スマホのレイアウト <select id="mlay"><option value="A">A：楽譜の下に入力パネル</option><option value="B">B：楽譜と入力を切り替え</option></select></label>
+</header>
+<button class="mclose" data-act="menu">閉じる</button>
+</div>
 <main>
   <section id="score"></section>
-  <aside id="panel"></aside>
+  <div id="dock">
+    <div id="handle"></div>
+    <div id="mtool"></div>
+    <aside id="panel"></aside>
+  </div>
 </main>
+<div id="mbottom"><nav id="mnav"></nav></div>
+<div id="mfloat"></div>
 <div id="modal" hidden></div>
 
 <script>
 "use strict";
 /* ================= 基本定義 ================= */
-const APP_VERSION = 'v0.5.1（2026-11-06）';
+const APP_VERSION = 'v0.6（2026-11-06）';
 const TS = {
   '4/4': {tpb:48, beat:12, beats:4},
   '3/4': {tpb:36, beat:12, beats:3},
@@ -763,8 +848,37 @@ function load(){
   if (!db.songs.find(s => s.id === db.currentId)) db.currentId = db.songs[0].id;
   if (!storageOK) showWarn('このブラウザでは保存できません。閉じる前に「この曲を書き出し」で保存してください。');
 }
+/* 元に戻す／やり直し（曲ごとに最大100段） */
+const HIST = { id: null, stack: [], idx: -1, t: 0 };
+const songJSON = S => JSON.stringify(S, (k, v) => k === 'updatedAt' ? undefined : v);
+function histReset(){ const S = song(); HIST.id = S.id; HIST.stack = [songJSON(S)]; HIST.idx = 0; }
+function snap(){
+  const S = song(); if (!S) return;
+  if (HIST.id !== S.id) return histReset();
+  const j = songJSON(S);
+  if (HIST.stack[HIST.idx] === j) return;
+  const now = Date.now();
+  HIST.stack.length = HIST.idx + 1;
+  if (ui._typing && now - HIST.t < 1200 && HIST.idx > 0 && HIST.lastTyping) HIST.stack[HIST.idx] = j;
+  else { HIST.stack.push(j); HIST.idx++; }
+  HIST.lastTyping = !!ui._typing; ui._typing = false; HIST.t = now;
+  if (HIST.stack.length > 100) { HIST.stack.shift(); HIST.idx--; }
+}
+function histGo(d){
+  const S = song();
+  if (HIST.id !== S.id) histReset();
+  const ni = HIST.idx + d;
+  if (ni < 0 || ni >= HIST.stack.length) return;
+  HIST.idx = ni;
+  const ns = JSON.parse(HIST.stack[ni]); ns.updatedAt = Date.now();
+  db.songs[db.songs.findIndex(x => x.id === S.id)] = ns;
+  if (ui.cursor.bar >= ns.bars.length) ui.cursor = { bar: ns.bars.length - 1, pos: 0 };
+  ui.sel = null;
+  persist(); renderAll();
+}
 let saveTimer = null;
-function save(){
+function save(){ snap(); persist(); }
+function persist(){
   const s = song(); if (s) s.updatedAt = Date.now();
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
@@ -1225,15 +1339,16 @@ function staffSVG(items, startTick, tpb){
 function keyboardHTML(){
   const S = song(), lo = TUNINGS[S.tuning].notes[0] + (S.capo || 0), hi = 88;
   let w = '', b = '', wx = 0;
+  const KW = document.body.classList.contains('m') ? 30 : 20;
   const pos = {};
   for (let m = 36; m <= 88; m++) {
     const black = [1,3,6,8,10].includes(pcOf(m)), off = m < lo || m > hi;
     if (!black) {
-      const lbl = pcOf(m) === 0 ? (m === 60 ? '中央C' : 'C' + (Math.floor(m / 12) - 1)) : '';
-      w += `<button class="wk${off ? ' off' : ''}" style="left:${wx}px" data-act="kb" data-v="${m}" ${off ? 'disabled' : ''} title="${NAMES[pcOf(m)]}${Math.floor(m / 12) - 1}">${lbl}</button>`;
-      pos[m] = wx; wx += 20;
+      const lbl = pcOf(m) === 0 ? (m === 60 ? (KW > 20 ? '<b>C4</b>' : '中央C') : 'C' + (Math.floor(m / 12) - 1)) : '';
+      w += `<button class="wk${off ? ' off' : ''}" style="left:${wx}px;width:${KW}px" data-act="kb" data-v="${m}" ${off ? 'disabled' : ''} title="${NAMES[pcOf(m)]}${Math.floor(m / 12) - 1}">${lbl}</button>`;
+      pos[m] = wx; wx += KW;
     } else {
-      b += `<button class="bk${off ? ' off' : ''}" style="left:${wx - 7}px" data-act="kb" data-v="${m}" ${off ? 'disabled' : ''} title="${NAMES[pcOf(m)]}${Math.floor(m / 12) - 1}"></button>`;
+      b += `<button class="bk${off ? ' off' : ''}" style="left:${wx - KW * 0.33}px;width:${KW * 0.65}px" data-act="kb" data-v="${m}" ${off ? 'disabled' : ''} title="${NAMES[pcOf(m)]}${Math.floor(m / 12) - 1}"></button>`;
     }
   }
   return `<div class="kbwrap" id="kbwrap"><div class="kb" style="width:${wx}px">${w}${b}</div></div>`;
@@ -1295,12 +1410,19 @@ function applyPattern(idx, fromBar, toBar){
 }
 
 /* ================= 楽譜描画 ================= */
-const VBW = 1000, LM = 46, RM = 6, BPL = 4;
-const BARW = (VBW - LM - RM) / BPL;
+const LM = 46, RM = 6, BARW = (1000 - LM - RM) / 4;
+let BPL = 4, VBW = 1000, PRINTING = false;
+function calcLayout(){
+  const st = (db && db.settings.bpl) || 'auto';
+  const b = document.body.classList;
+  BPL = PRINTING ? 4 : st === 'auto' ? (b.contains('m') ? 2 : 4) : +st;
+  VBW = LM + RM + BPL * BARW;
+}
 const DW = 96, DH = 72;  // ダイアグラム
 const evX = (bx, pos, tpb) => bx + 18 + pos / tpb * (BARW - 30);
 
 function renderScore(){
+  calcLayout();
   const S = song(), T = TS[S.ts];
   const lines = Math.ceil(S.bars.length / BPL);
   let html = `<div class="sheet" id="sheet"><h1 class="song-title">${esc(S.title || '無題')}</h1>`;
@@ -1478,7 +1600,10 @@ function lineSVG(S, T, li){
 /* ================= パネル描画 ================= */
 function renderPanel(){
   const S = song(), T = TS[S.ts], c = ui.cursor, bar = S.bars[c.bar], ev = eventAt(c.bar, c.pos);
-  let h = `<div class="pos">位置：<b>${c.bar + 1}小節目</b>　${posLabel(c.pos)}　<span style="color:#9cc3ff">${STR_NAME(ui.str)}</span>${ev ? '　<span style="color:#ffb393">（入力済み：' + esc(evLabel(ev)) + '）</span>' : ''}</div>`;
+  const bc = document.body.classList;
+  let h = '';
+  if (bc.contains('m') && bc.contains('lay-b') && !bc.contains('land')) h += `<div class="ppv">${lineSVG(S, T, Math.floor(c.bar / BPL))}</div>`;
+  h += `<div class="pos">位置：<b>${c.bar + 1}小節目</b>　${posLabel(c.pos)}　<span style="color:#9cc3ff">${STR_NAME(ui.str)}</span>${ev ? '　<span style="color:#ffb393">（入力済み：' + esc(evLabel(ev)) + '）</span>' : ''}</div>`;
   h += `<div class="row" style="margin-top:6px">
     <label><input type="checkbox" id="sixteenth" ${ui.sixteenth ? 'checked' : ''}> 16分の位置</label>
     ${S.ts === '4/4' ? `<label><input type="checkbox" id="trip" ${ui.triplet ? 'checked' : ''}> 3連符の位置</label>` : ''}
@@ -1490,12 +1615,12 @@ function renderPanel(){
       <div class="row">${ui.sel ? `<button data-act="copy">コピー (Ctrl+C)</button><button data-act="cut">切り取り (Ctrl+X)</button><button data-act="selDel">削除</button><button data-act="selClear">解除 (Esc)</button>` : ''}
       ${ui.clip ? `<button data-act="paste">貼り付け (Ctrl+V)</button><button data-act="pastePat" title="貼り付け先のコードはそのままで、ストロークやアルペジオだけを貼ります">パターンだけ貼り付け (Ctrl+Shift+V)</button>` : ''}</div></div>`;
   }
-  const tabs = [['chord','コード'],['stroke','ストローク'],['notes','単音・アルペジオ'],['phrase','フレーズ'],['bar','小節']];
+  const tabs = [['chord','コード'],['stroke','ストローク'],['notes', bc.contains('m') ? '単音' : '単音・アルペジオ'],['phrase','フレーズ'],['bar','小節']];
   h += `<div class="ptabs">${tabs.map(([k, l]) => `<button data-act="ptab" data-v="${k}" class="${ui.tab === k ? 'on' : ''}">${l}</button>`).join('')}</div>`;
   h += ({ chord: panelChord, stroke: panelStroke, notes: panelNotes, phrase: panelPhrase, bar: panelBar })[ui.tab](S, T, c, bar, ev);
   document.getElementById('panel').innerHTML = h;
   const kw = document.getElementById('kbwrap');
-  if (kw) { kw.scrollLeft = ui.kbScroll != null ? ui.kbScroll : 20 * 14; kw.addEventListener('scroll', () => { ui.kbScroll = kw.scrollLeft; }); }
+  if (kw) { kw.scrollLeft = ui.kbScroll != null ? ui.kbScroll : (document.body.classList.contains('m') ? 30 : 20) * 14; kw.addEventListener('scroll', () => { ui.kbScroll = kw.scrollLeft; }); }
 }
 
 function panelChord(S, T, c, bar, ev){
@@ -1571,9 +1696,9 @@ function panelNotes(S, T, c, bar, ev){
   let h = `<h3>弦を選ぶ（↑↓キー／タブ譜の線をクリック）</h3><div class="strs">${[5,4,3,2,1,0].map(i =>
     `<button data-act="str" data-v="${i}" class="${ui.str === i ? 'on' : ''}">${STR_NAME(i)}<small>${nn(tun[i] + capo)}</small></button>`).join('')}</div>`;
   h += `<h3>音を入れる</h3>
-    <div class="row"><button data-act="follow" class="pri">コードの音を入れる (Enter)</button>
-      <label>フレット <input type="number" id="fretIn" min="0" max="24" value="0" style="width:56px"></label><button data-act="fret">入れる</button></div>
-    <div class="help" style="margin-top:4px">数字キー（0〜24）でもフレットを入力できます。「コードの音」は、その時点のコードの押さえ方に合わせてフレットが自動で決まります（コードを変えても追従します）。Delete でこの弦の音を消します。</div>`;
+    <div class="row"><button data-act="follow" class="pri">コードの音を入れる (Enter)</button></div>
+    <div class="fretpad">${Array.from({length: 25}, (_, i) => `<button data-act="fretKey" data-v="${i}">${i}</button>`).join('')}</div>
+    <div class="help" style="margin-top:4px">フレットの数字を押すと、選んだ弦に入って次の位置へ進みます（PCは数字キーでも可）。「コードの音」は、その時点のコードの押さえ方に合わせてフレットが自動で決まります。「削除」でこの弦の音を消します。</div>`;
   const e = ev && hasNotes(ev) ? ev : null;
   const r = e ? (resolveNotes(e, actAt(e, c.bar)).find(x => x.s === ui.str) || null) : null;
   const on = k => r && r.n.t === k ? 'on' : '';
@@ -1664,12 +1789,16 @@ function renderHeader(){
   document.getElementById('trmode').value = ui.trmode || 'revoice';
   if (document.activeElement !== document.getElementById('bpm')) document.getElementById('bpm').value = S.bpm;
   document.getElementById('metro').checked = !!db.settings.metro;
+  document.getElementById('bplSel').value = db.settings.bpl || 'auto';
+  document.getElementById('mlay').value = db.settings.mlay || 'A';
+  document.getElementById('mtitle').textContent = S.title || '無題';
 }
 
 function renderAll(){
+  if (HIST.id !== song().id) histReset();
   _estKey = estimateKey(song());
   NAMES = spellingFor(effKey());
-  renderHeader(); renderScore(); renderPanel();
+  renderHeader(); renderScore(); renderPanel(); renderMobile();
 }
 
 /* ================= 操作 ================= */
@@ -1694,10 +1823,15 @@ document.getElementById('score').addEventListener('dblclick', e => {
 document.getElementById('score').addEventListener('click', e => {
   const btn = e.target.closest('[data-act]');
   if (btn) return act(btn.dataset.act, btn);
+  scoreClick(e);
+});
+function scoreClick(e){
   const svg = e.target.closest('svg.tabline');
   if (!svg) return;
   const prevAbs = ui.cursor.bar * TS[song().ts].tpb + ui.cursor.pos;
-  if (e.shiftKey) { e.preventDefault(); ui._shiftFrom = ui.sel ? ui.sel.anchor : prevAbs; } else ui._shiftFrom = null;
+  if (e.shiftKey) { e.preventDefault(); ui._shiftFrom = ui.sel ? ui.sel.anchor : prevAbs; }
+  else if (ui.selMode) ui._shiftFrom = ui.sel ? ui.sel.anchor : 'tap';
+  else ui._shiftFrom = null;
   const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
   const p = pt.matrixTransform(svg.getScreenCTM().inverse());
   const li = +svg.dataset.line, S = song(), T = TS[S.ts];
@@ -1714,6 +1848,7 @@ document.getElementById('score').addEventListener('click', e => {
   let tgt;
   if (near && near.d <= (ui.sixteenth ? 1.4 : 3.5)) tgt = near.ev.pos;
   else { const sl = slots(); tgt = sl[0]; for (const x of sl) if (Math.abs(x - rel) < Math.abs(tgt - rel)) tgt = x; }
+  if (ui._shiftFrom === 'tap') ui._shiftFrom = bi * T.tpb + tgt;
   if (ui._shiftFrom != null) {
     const abs = bi * T.tpb + tgt, a = ui._shiftFrom;
     if (ui.sel && ui.sel.bars) {   // 小節単位の選択を広げる
@@ -1725,12 +1860,19 @@ document.getElementById('score').addEventListener('click', e => {
   }
   ui.sel = null;
   setCursor(bi, tgt);
-});
+}
 
 document.getElementById('panel').addEventListener('click', e => {
   const btn = e.target.closest('[data-act]');
   if (btn) act(btn.dataset.act, btn);
+  else scoreClick(e);
 });
+['mbar','mtool','mnav','mfloat','hdr'].forEach(id => {
+  if (id === 'hdr') { document.querySelector('.mclose').addEventListener('click', e => act('menu', e.target)); return; }
+  document.getElementById(id).addEventListener('click', e => { const btn = e.target.closest('[data-act]'); if (btn) act(btn.dataset.act, btn); });
+});
+document.getElementById('bplSel').addEventListener('change', e => { db.settings.bpl = e.target.value; persist(); renderAll(); });
+document.getElementById('mlay').addEventListener('change', e => { db.settings.mlay = e.target.value; persist(); applyLayout(); renderAll(); });
 document.querySelectorAll('header.top').forEach(h => h.addEventListener('click', e => {
   const btn = e.target.closest('[data-act]');
   if (btn) act(btn.dataset.act, btn);
@@ -1787,7 +1929,11 @@ function act(a, el){
     case 'applyCapo': { const oc = S.capo; S.capo = +el.dataset.v; remapNotes(S, TUNINGS[S.tuning].notes, oc, 0); voiceSong(S, null, true); save(); closeModal(); renderAll(); break; }
     case 'print': {
       const old = document.title; document.title = S.title || '無題';
-      const sel = ui.cursor; window.print(); document.title = old; break;
+      document.body.classList.remove('menu');
+      PRINTING = true; renderScore();
+      window.print(); document.title = old;
+      setTimeout(() => { PRINTING = false; renderScore(); }, 500);
+      break;
     }
     case 'aud': { const v = ui._list[+el.dataset.i]; auditionFrets(v.frets); break; }
     case 'stroke': placeStroke(el.dataset.dir, !!el.dataset.mute); break;
@@ -1803,7 +1949,22 @@ function act(a, el){
       placeEvent(nev);
       break;
     }
-    case 'ptab': ui.tab = el.dataset.v; ui.msg = ''; renderPanel(); break;
+    case 'ptab': ui.tab = el.dataset.v; ui.msg = ''; renderPanel(); if (document.body.classList.contains('m')) { const pp = document.getElementById('panel'), pt = pp.querySelector('.ptabs'); if (pt && pp.scrollTop > pt.offsetTop) pp.scrollTop = pt.offsetTop - 4; } break;
+    case 'undo': histGo(-1); break;
+    case 'redo': histGo(1); break;
+    case 'menu': document.body.classList.toggle('menu'); break;
+    case 'mview': {
+      const v = el.dataset.v;
+      if (v === 'score') ui.mview = 'score'; else { ui.mview = 'panel'; ui.tab = v; ui.msg = ''; }
+      applyLayout(); renderAll(); document.getElementById('panel').scrollTop = 0; break;
+    }
+    case 'mprev': moveCursor(-1, false); break;
+    case 'mnext': moveCursor(1, false); break;
+    case 'strUp': ui.str = Math.min(5, ui.str + 1); renderAll(); break;
+    case 'strDn': ui.str = Math.max(0, ui.str - 1); renderAll(); break;
+    case 'selMode': ui.selMode = !ui.selMode; if (!ui.selMode) ui.sel = null; renderAll(); break;
+    case 'selBar': { const tpb = TS[S.ts].tpb; ui.selMode = true; ui.sel = { anchor: c.bar * tpb, s: c.bar * tpb, e: (c.bar + 1) * tpb, bars: true }; renderAll(); break; }
+    case 'fretKey': placeNote(+el.dataset.v, false); break;
     case 'str': ui.str = +el.dataset.v; renderAll(); break;
     case 'follow': placeNote(null, true); break;
     case 'fret': { const v = Math.max(0, Math.min(24, Math.round(+document.getElementById('fretIn').value) || 0)); placeNote(v, false); break; }
@@ -1839,9 +2000,9 @@ function act(a, el){
     case 'copy': copySel(); renderPanel(); break;
     case 'cut': if (copySel()) { removeRange(S, ui.sel.s, ui.sel.e); ui.sel = null; save(); renderAll(); } break;
     case 'selDel': if (ui.sel) { removeRange(S, ui.sel.s, ui.sel.e); ui.sel = null; save(); renderAll(); } break;
-    case 'selClear': ui.sel = null; renderAll(); break;
-    case 'paste': pasteClip(false); break;
-    case 'pastePat': pasteClip(true); break;
+    case 'selClear': ui.sel = null; ui.selMode = false; renderAll(); break;
+    case 'paste': pasteClip(false); ui.selMode = false; renderAll(); break;
+    case 'pastePat': pasteClip(true); ui.selMode = false; renderAll(); break;
     case 'rest': placeEvent({ type: 'rest' }); break;
     case 'nc': placeEvent({ type: 'nc' }); break;
     case 'del': deleteNoteOrEvent(); break;
@@ -1937,6 +2098,29 @@ function deleteAtCursor(){
   const i = b.events.findIndex(e => e.pos === ui.cursor.pos);
   if (i < 0) return;
   b.events.splice(i, 1); save(); renderAll();
+}
+
+function moveCursor(dir, extend){
+  const S = song(), sl = slots();
+  let { bar, pos } = ui.cursor;
+  const tpb0 = TS[S.ts].tpb, from = ui.sel ? ui.sel.anchor : bar * tpb0 + pos;
+  const uniq = [...new Set(sl.concat(S.bars[bar].events.map(x => x.pos)))].sort((a, b) => a - b);
+  let i = uniq.indexOf(pos);
+  if (i < 0) i = uniq.findIndex(x => x > pos) - (dir > 0 ? 1 : 0);
+  if (dir > 0) {
+    if (i + 1 < uniq.length) pos = uniq[i + 1];
+    else if (bar + 1 < S.bars.length) { bar++; pos = 0; }
+  } else {
+    if (i > 0) pos = uniq[i - 1];
+    else if (bar > 0) { bar--; const s2 = slots(); pos = s2[s2.length - 1]; }
+  }
+  if (extend) {
+    const abs = bar * tpb0 + pos;
+    ui.sel = { anchor: from, s: Math.min(from, abs), e: Math.max(from, abs) + minStep() };
+    ui.cursor = { bar, pos }; renderAll(); return;
+  }
+  ui.sel = null;
+  setCursor(bar, pos);
 }
 
 /* ================= 範囲選択・コピー＆ペースト ================= */
@@ -2097,8 +2281,8 @@ function midiToPhrase(M, from, to, poly){
 /* 入力欄 */
 document.getElementById('panel').addEventListener('input', e => {
   const S = song(), bar = S.bars[ui.cursor.bar];
-  if (e.target.id === 'f-sec') { bar.section = e.target.value; save(); renderScore(); }
-  if (e.target.id === 'f-lyr') { bar.lyrics = e.target.value.replace(/\n/g, ' '); save(); renderScore(); }
+  if (e.target.id === 'f-sec') { ui._typing = true; bar.section = e.target.value; save(); renderScore(); }
+  if (e.target.id === 'f-lyr') { ui._typing = true; bar.lyrics = e.target.value.replace(/\n/g, ' '); save(); renderScore(); }
 });
 document.getElementById('panel').addEventListener('change', e => {
   const S = song(), bar = S.bars[ui.cursor.bar], id = e.target.id;
@@ -2117,7 +2301,7 @@ document.getElementById('panel').addEventListener('change', e => {
   else return;
   save(); renderScore();
 });
-document.getElementById('title').addEventListener('input', e => { song().title = e.target.value; save(); renderScore(); });
+document.getElementById('title').addEventListener('input', e => { ui._typing = true; song().title = e.target.value; save(); renderScore(); renderMobile(); });
 document.getElementById('showDiag').addEventListener('change', e => { db.settings.showDiagrams = e.target.checked; save(); renderScore(); });
 document.getElementById('limit').addEventListener('change', e => { db.settings.limit = e.target.checked; ui.showCount = 4; save(); renderPanel(); });
 document.getElementById('ts').addEventListener('change', e => {
@@ -2143,31 +2327,15 @@ document.addEventListener('keydown', e => {
     if (k === 'c' && ui.sel) { e.preventDefault(); copySel(); renderPanel(); }
     else if (k === 'x' && ui.sel) { e.preventDefault(); act('cut'); }
     else if (k === 'v' && ui.clip) { e.preventDefault(); pasteClip(e.shiftKey); }
+    else if (k === 'z') { e.preventDefault(); histGo(e.shiftKey ? 1 : -1); }
+    else if (k === 'y') { e.preventDefault(); histGo(1); }
     else if (k === 'a') { e.preventDefault(); const tpb = TS[S.ts].tpb; ui.sel = { anchor: 0, s: 0, e: S.bars.length * tpb, bars: true }; renderAll(); }
     return;
   }
   if (e.key === 'Escape') { if (ui.sel) { ui.sel = null; renderAll(); } return; }
   if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
     e.preventDefault();
-    const tpb0 = TS[S.ts].tpb, from = ui.sel ? ui.sel.anchor : bar * tpb0 + pos;
-    const all = sl.concat(song().bars[bar].events.map(x => x.pos));
-    const uniq = [...new Set(all)].sort((a,b)=>a-b);
-    let i = uniq.indexOf(pos);
-    if (i < 0) i = uniq.findIndex(x => x > pos) - (e.key === 'ArrowRight' ? 1 : 0);
-    if (e.key === 'ArrowRight') {
-      if (i + 1 < uniq.length) pos = uniq[i + 1];
-      else if (bar + 1 < S.bars.length) { bar++; pos = 0; }
-    } else {
-      if (i > 0) pos = uniq[i - 1];
-      else if (bar > 0) { bar--; const s2 = slots(); pos = s2[s2.length - 1]; }
-    }
-    if (e.shiftKey) {
-      const abs = bar * tpb0 + pos;
-      ui.sel = { anchor: from, s: Math.min(from, abs), e: Math.max(from, abs) + minStep() };
-      ui.cursor = { bar, pos }; renderAll(); return;
-    }
-    ui.sel = null;
-    setCursor(bar, pos);
+    moveCursor(e.key === 'ArrowRight' ? 1 : -1, e.shiftKey);
   } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
     e.preventDefault(); ui.str = Math.max(0, Math.min(5, ui.str + (e.key === 'ArrowUp' ? 1 : -1))); renderAll();
   } else if (e.key === 'Delete' || e.key === 'Backspace') {
@@ -2447,6 +2615,8 @@ function updatePlayBtn(){
   const b = document.getElementById('playBtn');
   b.textContent = PB.playing ? '■ 停止' : '▶ 再生';
   b.classList.toggle('on', PB.playing);
+  const mp = document.getElementById('mplay');
+  mp.textContent = PB.playing ? '■' : '▶'; mp.classList.toggle('on', PB.playing);
 }
 function schedule(){
   const tl = PB.tl, until = AC.currentTime + 0.3;
@@ -2549,9 +2719,84 @@ document.getElementById('file').addEventListener('change', async e => {
   } catch (err) { alert('読み込めませんでした：' + err.message); }
 });
 
+/* ================= スマホ ================= */
+function isMobile(){
+  return matchMedia('(max-width: 760px)').matches || (matchMedia('(pointer: coarse)').matches && Math.min(innerWidth, innerHeight) < 560);
+}
+function applyLayout(){
+  const b = document.body.classList, m = isMobile(), land = m && innerWidth > innerHeight;
+  b.toggle('m', m); b.toggle('land', land);
+  const lay = db.settings.mlay || 'A';
+  b.toggle('lay-a', lay === 'A'); b.toggle('lay-b', lay === 'B');
+  b.toggle('mv-panel', ui.mview === 'panel');
+  if (!m) b.remove('menu');
+  const tool = document.getElementById('mtool');
+  const target = m && lay === 'B' && !land ? document.getElementById('mbottom') : document.getElementById("dock");
+  if (target.id === 'mbottom') { if (tool.parentNode !== target) target.insertBefore(tool, target.firstChild); }
+  else if (tool.parentNode !== target) target.insertBefore(tool, document.getElementById('panel'));
+  document.documentElement.style.setProperty('--sheetH', ui.sheetPx ? ui.sheetPx + 'px' : '46vh');
+}
+function renderMobile(){
+  const bc = document.body.classList;
+  if (!bc.contains('m')) { document.getElementById('mfloat').className = ''; return; }
+  const S = song(), c = ui.cursor, ev = eventAt(c.bar, c.pos);
+  document.getElementById('mtool').innerHTML = `
+    <button data-act="mprev" title="前へ">◀</button><button data-act="mnext" title="次へ">▶</button>
+    <span class="vsep"></span>
+    <button data-act="strDn" title="低い弦へ">▼</button><span class="strl">${STR_NAME(ui.str)}</span><button data-act="strUp" title="高い弦へ">▲</button>
+    <span class="vsep"></span>
+    <button data-act="del" ${ev ? '' : 'disabled'}>削除</button>
+    <button data-act="selMode" class="${ui.selMode ? 'on' : ''}">範囲選択</button>
+    <button data-act="selBar">小節選択</button>`;
+  const navs = [['score','楽譜'],['chord','コード'],['stroke','ストローク'],['notes','単音'],['phrase','フレーズ'],['bar','小節']];
+  const cur = ui.mview === 'panel' ? ui.tab : 'score';
+  document.getElementById('mnav').innerHTML = navs.map(([k, l]) => `<button data-act="mview" data-v="${k}" class="${cur === k ? 'on' : ''}">${l}</button>`).join('');
+  const f = document.getElementById('mfloat');
+  if (ui.sel || ui.selMode) {
+    const T2 = TS[S.ts], fmt = t => `${Math.floor(t / T2.tpb) + 1}小節目 ${posLabel(t % T2.tpb)}`;
+    const txt = !ui.sel ? '範囲選択中：始まりと終わりをタップしてください' : ui.sel.bars ? `選択中：${ui.sel.s / T2.tpb + 1}〜${ui.sel.e / T2.tpb}小節目（タップで広げる）` : `選択中：${fmt(ui.sel.s)} 〜 ${fmt(Math.max(ui.sel.s, ui.sel.e - minStep()))}`;
+    f.innerHTML = `${txt}<div class="row">${ui.sel ? `<button data-act="copy">コピー</button><button data-act="cut">切り取り</button><button data-act="selDel">削除</button>` : ''}
+      ${ui.clip ? `<button data-act="paste">貼り付け</button><button data-act="pastePat">パターンだけ貼る</button>` : ''}<button data-act="selClear">終了</button></div>`;
+    f.className = 'on';
+    const lay = db.settings.mlay || 'A', land = bc.contains('land');
+    const below = land ? null : document.getElementById(lay === 'B' ? 'mbottom' : 'dock');
+    document.documentElement.style.setProperty('--fbot', ((below ? below.getBoundingClientRect().height : 0) + 8) + 'px');
+  } else f.className = '';
+}
+// 入力パネルの高さ（案A）：つまみをドラッグ、タップで 大→小→中 を切り替え
+(() => {
+  const h = document.getElementById('handle');
+  let y0 = null, moved = false, h0 = 0;
+  h.addEventListener('pointerdown', e => { y0 = e.clientY; moved = false; h0 = document.getElementById("dock").getBoundingClientRect().height; h.setPointerCapture(e.pointerId); });
+  h.addEventListener('pointermove', e => {
+    if (y0 == null) return;
+    const dy = y0 - e.clientY;
+    if (Math.abs(dy) > 4) moved = true;
+    if (!moved) return;
+    ui.sheetPx = Math.max(130, Math.min(innerHeight - 140, h0 + dy));
+    document.documentElement.style.setProperty('--sheetH', ui.sheetPx + 'px');
+  });
+  h.addEventListener('pointerup', () => {
+    if (y0 != null && !moved) {
+      const cur = document.getElementById("dock").getBoundingClientRect().height, H = innerHeight;
+      ui.sheetPx = cur > H * 0.6 ? 150 : cur < H * 0.3 ? Math.round(H * 0.46) : Math.round(H * 0.8);
+      document.documentElement.style.setProperty('--sheetH', ui.sheetPx + 'px');
+    }
+    y0 = null;
+  });
+})();
+let _lastM = null, _rz = null;
+addEventListener('resize', () => {
+  clearTimeout(_rz);
+  _rz = setTimeout(() => { const before = document.body.className; applyLayout(); if (document.body.className !== before) renderAll(); else if (isMobile()) renderScore(); }, 120);
+});
+addEventListener('beforeprint', () => { PRINTING = true; renderScore(); });
+addEventListener('afterprint', () => { PRINTING = false; renderScore(); });
+
 /* ================= 起動 ================= */
 load();
 document.getElementById('ver').textContent = APP_VERSION;
+applyLayout();
 setCursor(0, 0);
 </script>
 </body>
